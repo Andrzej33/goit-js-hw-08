@@ -1,60 +1,61 @@
 import throttle from "lodash.throttle";
 
+
+const STORAGE_KEY = 'feedback-form-state'
+
 const form = document.querySelector('.feedback-form');
 
-
-const takeValues = () => {
-    // const { elements: {
-    //     email,
-    //     message }, } = form;
-     const currentValue = {
-        email: form.elements.email.value,
-        message: form.elements.message.value,
-    }
-    return currentValue
-}
+onLoadingPage()
 
 
 
+// const takeValues = () => {
+//     // const { elements: {
+//     //     email,
+//     //     message }, } = form;
+//      const currentValue = {
+//         email: form.elements.email.value,
+//         message: form.elements.message.value,
+//     }
+//     return currentValue
+// }
 
-const onFormClick = () => {
-    //     const mailVal = form.elements.email.value;
-    // const messageVal = form.elements.message.value;
-    // console.log(form.elements.email.value);
-    // console.log(form.elements.message.value);
-   
-        // console.log(email, message)
+const currentValue = {};
 
+
+const onFormClick = (evt) => {
    
 
-    // console.log(email, message)
-    // takeValues()
+    currentValue[evt.target.name] = evt.target.value;
 
-    const createForm = takeValues();
-     localStorage.setItem('feedback-form-state', JSON.stringify(createForm));
+   
+     localStorage.setItem(STORAGE_KEY, JSON.stringify(currentValue));
 
 
-    // console.log(takeValues()); 
-};
+    };
 
-form.addEventListener('input', onFormClick);
+form.addEventListener('input', throttle(onFormClick,500));
 
-// console.log(localStorage.getItem('feedback-form-state'))
 
 
 const onSubmit = (evt) => {
     evt.preventDefault()
-    if (localStorage.getItem('feedback-form-state')) {
-
-        const savedValues = localStorage.getItem("feedback-form-state") || '';
-        const parsedValues = JSON.parse(savedValues);
-        console.log(parsedValues);
-    }
-    {
-        form.elements.email.value = '';
-        form.elements.message.value = '';
-    }
+       
     form.reset();
-}
+    localStorage.removeItem(STORAGE_KEY);
+    console.log(currentValue)
+    }
 
 window.addEventListener('submit', onSubmit);
+
+
+function onLoadingPage() {
+    const savedFormData = localStorage.getItem(STORAGE_KEY) || '';
+    if (savedFormData) {
+        
+    const parsedValues = JSON.parse(savedFormData);
+       form.elements.email.value = parsedValues.email;
+        form.elements.message.value = parsedValues.message;
+    }
+    
+}
